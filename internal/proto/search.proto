@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package search;
+
+option go_package = ".";
+
+service TobaccoSearchService {
+  rpc BrandTobacco(BrandTobaccoSearch) returns (TobaccoSearchResponse) {}
+  rpc NameTobacco(NameTobaccoSearch) returns (TobaccoSearchResponse) {}
+}
+
+message BrandTobaccoSearch {
+  string brand_prefix = 1;
+}
+
+message NameTobaccoSearch {
+  string brand = 1;
+  string name_prefix = 2;
+}
+
+message TobaccoSearchResponse {
+  repeated string results = 1;
+}
