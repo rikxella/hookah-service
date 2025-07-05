@@ -14,12 +14,48 @@ type Tobacco struct {
 	FlavorURL  string
 }
 
+type Brand struct {
+	BrandName string
+}
+
 type SearchIndex struct {
 	BrandPrefixes map[string][]string             // префикс -> список брендов
 	BrandToNames  map[string]map[string][]*Tobacco // бренд -> (префикс -> табаки)
 }
 
-func LoadFromCSV(path string) ([]*Tobacco, error) {
+func BrandLoadFromCSV(path string) ([]*Brand, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	reader.Comma = ','
+
+	if _, err := reader.Read(); err != nil {
+		return nil, err
+	}
+
+	var brands []*Brand
+	for {
+		record, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		brands = append(brands, &Brand{
+			BrandName:  record[0],
+		})
+	}
+
+	return brands, nil
+}
+
+func TobaccoLoadFromCSV(path string) ([]*Tobacco, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -54,14 +90,14 @@ func LoadFromCSV(path string) ([]*Tobacco, error) {
 	return tobaccos, nil
 }
 
-func BuildIndex(tobaccos []*Tobacco) *SearchIndex {
+func BuildIndex(tobaccos []*Tobacco, brands []*Brand) *SearchIndex {
 	index := &SearchIndex{
 		BrandPrefixes: make(map[string][]string),
 		BrandToNames:  make(map[string]map[string][]*Tobacco),
 	}
 
 	brandMap := make(map[string]struct{})
-	for _, t := range tobaccos {
+	for _, t := range brands {
 		brandMap[t.BrandName] = struct{}{}
 	}
 

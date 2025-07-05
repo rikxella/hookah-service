@@ -63,7 +63,9 @@ func (s *TobaccoServer) NameTobacco(
 		}
 	}
 
-	return &pb.TobaccoSearchResponse{Results: results}, nil
+	return &pb.TobaccoSearchResponse{
+		Results: removeDuplicates(results),
+	}, nil
 }
 
 func removeDuplicates(items []string) []string {

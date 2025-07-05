@@ -12,12 +12,17 @@ import (
 )
 
 func main() {
-	tobaccos, err := model.LoadFromCSV(filepath.Join("data", "tobaccos.csv"))
+	tobaccos, err := model.TobaccoLoadFromCSV(filepath.Join("data", "tobaccos.csv"))
 	if err != nil {
 		log.Fatalf("Ошибка загрузки данных: %v", err)
 	}
 
-	index := model.BuildIndex(tobaccos)
+	tobaccoNames, err := model.BrandLoadFromCSV(filepath.Join("data", "tobacco_names.csv"))
+	if err != nil {
+		log.Fatalf("Ошибка загрузки данных: %v", err)
+	}
+
+	index := model.BuildIndex(tobaccos, tobaccoNames)
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterTobaccoSearchServiceServer(grpcServer, server.NewTobaccoServer(index))
